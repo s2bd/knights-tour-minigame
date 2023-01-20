@@ -1,33 +1,32 @@
 import java.awt.Color;
 import javax.swing.*;
 
-/*
- *  A GUI component
+/**
+ * BoardTiles generate square-like GUI objects on a visual window.
  *
- *  A simple extension of JPanel which records its
- *  coordinates in xcoord and ycoord, NOT in 'x' and 'y'.
- *  Why not? Because 'x' and 'y' are already attributes of
- *  the panel (super) class which say where to draw it in the window.
- *
- *  The game grid and allows the background colour to be set with ease.
- *
- *  @author mhatcher
+ * @author Dewan Mukto (dmimukto)
+ * @student_id 202004321
+ * @version 2023 Jan 10
+ * @attribution Mark Hatcher (mhatcher) - for some starting code & inspiration
  */
-public class GridSquare extends JPanel
+public class BoardTile extends JPanel
 {
-    private int xcoord, ycoord;  // location in the grid
+    private int xcoord, ycoord;  // coordinates for the tile
     private boolean visited;
 
-    // constructor takes the x and y coordinates of this square
-    public GridSquare(int xcoord, int ycoord)
+    /**
+     * Constructor for a single tile instance
+     */
+    public BoardTile(int xcoord, int ycoord)
     {
-        super();
+        super(); // inheritting all of JPanel's attributes
         this.setSize(50,50);
         this.xcoord = xcoord;
         this.ycoord = ycoord;
         this.visited = false;
     }
 
+    // @author mhatcher
     // if the decider is even, it chooses black, otherwise white (for 'column+row' will allow a chequerboard effect)
     public void setColor( int decider)
     {

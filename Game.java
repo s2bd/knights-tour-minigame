@@ -1,13 +1,15 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.Border;
 
-/*
- *  The main window of the gui.
- *  Notice that it extends JFrame - so we can add our own components.
- *  Notice that it implements ActionListener - so we can handle user input.
- *  This version also implements MouseListener to show equivalent functionality (compare with the other demo).
- *  @author mhatcher
+/**
+ * Launches a minigame of Knight's Tour, using Java Swing GUI
+ *
+ * @author Dewan Mukto (dmimukto)
+ * @student_id 202004321
+ * @version 2023 Jan 16
+ * @attribution Mark Hatcher (mhatcher) - for some starting code & inspiration
  */
 public class Game extends JFrame implements ActionListener, MouseListener
 {
@@ -15,73 +17,71 @@ public class Game extends JFrame implements ActionListener, MouseListener
     private JPanel topPanel, gamePanel;
     private JLabel infoLabel;
     private JButton resetButton;
-    private GridSquare [][] gridSquares;
+    private BoardTile [][] gridTiles;
     private int rows,columns, selX, selY, moveCount;
     private boolean firsttime, invalidMove;
+    private Border yellowBorder;
 
-    /*
-     *  constructor method takes as input how many rows and columns of gridsquares to create
-     *  it then creates the panels, their subcomponents and puts them all together in the main frame
-     *  it makes sure that action listeners are added to selectable items
-     *  it makes sure that the gui will be visible
+    /**
+     * Constructor for the Game
      */
-    public Game(int rows, int columns)
+    public Game()
     {
         selX = 0;
         selY = 0;
         firsttime = true;
         this.invalidMove = false;
-        this.rows = rows;
-        this.columns = columns;
+        this.rows = 5;
+        this.columns = 5;
         this.setSize(600,600);
 
-        // first create the panels
+        // Creating 2 main zones for the window
         topPanel = new JPanel();
         topPanel.setLayout(new BorderLayout());
-
         gamePanel = new JPanel();
         gamePanel.setLayout(new GridLayout(rows, columns));
         gamePanel.setSize(500,500);
 
-        // then create the components for each panel and add them to it
+        yellowBorder = BorderFactory.createLineBorder(Color.yellow);
 
-        // for the top panel:
+        // Creating the menu bar UI components
         infoLabel = new JLabel("Sir Lancelot, visit every square once!");
         resetButton = new JButton("New Game");
-        resetButton.addActionListener(this);            // IMPORTANT! Without this, clicking the square does nothing.
-
+        resetButton.addActionListener(this);
+        // Adding the UI components with the menu bar
         topPanel.add(infoLabel, BorderLayout.WEST);
         topPanel.add(resetButton, BorderLayout.EAST);
 
-        // for the bottom panel:    
-        // create the squares and add them to the grid
-        gridSquares = new GridSquare[rows][columns];
+        // Creating the main 'game' zone
+        // Initializing the 5x5 chess-like grid
+        gridTiles = new BoardTile[rows][columns];
         for ( int x = 0; x < columns; x ++)
         {
             for ( int y = 0; y < rows; y ++)
             {
-                gridSquares[x][y] = new GridSquare(x, y);
-                gridSquares[x][y].setSize(20, 20);
-                gridSquares[x][y].setColor(x + y);
-                gridSquares[x][y].addMouseListener(this);
-                gamePanel.add(gridSquares[x][y]);
+                gridTiles[x][y] = new BoardTile(x, y);
+                gridTiles[x][y].setSize(20, 20);
+                gridTiles[x][y].setColor(x + y);
+                gridTiles[x][y].setOpaque(true);
+                gridTiles[x][y].setBorder(yellowBorder);
+                gridTiles[x][y].addMouseListener(this);
+                // adding components to the playable zone
+                gamePanel.add(gridTiles[x][y]);
             }
         }
 
-        // now add the top and bottom panels to the main frame
+        // adding everything to the main window
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(topPanel, BorderLayout.NORTH);
-        getContentPane().add(gamePanel, BorderLayout.CENTER);        // needs to be center or will draw too small
-
-        // housekeeping : behaviour
+        getContentPane().add(gamePanel, BorderLayout.CENTER);
+        // wrapping up
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setVisible(true);
     }
 
-    /*
-     *  handles actions performed in the gui
-     *  this method must be present to correctly implement the ActionListener interface
+    /**
+     * Action handler for the game
      */
     public void actionPerformed(ActionEvent aevt)
     {
@@ -92,38 +92,28 @@ public class Game extends JFrame implements ActionListener, MouseListener
         if ( selected.equals(resetButton) )
         {
             Launcher.main(new String[1]);
-            // selX = 0;
-            // selY = 0;
-            // firsttime = true;
-            // moveCount = 0;
-            // infoLabel.setText("Sir Lancelot, visit every square once!");
-            // for ( int x = 0; x < columns; x ++)
-            // {
-            // for ( int y = 0; y < rows; y ++)
-            // {
-            // gridSquares[x][y].setColor(x + y);
-            // }
-            // }
             System.out.println("Game reset!");
             setVisible(false);
             dispose();
         }
     }
 
-    // Mouse Listener events
+    /**
+     * Mouse Action handler for the game
+     */
     public void mouseClicked(MouseEvent mevt)
     {
         Object selected = mevt.getSource();
-        if (selected instanceof GridSquare)
+        if (selected instanceof BoardTile)
         {
-            GridSquare square = (GridSquare) selected;
+            BoardTile square = (BoardTile) selected;
             // coloring previously visited squares BLUE
             if(!firsttime && (selX!=0 || selY!=0)){
-                gridSquares[selX][selY].colorBlue();
+                gridTiles[selX][selY].colorBlue();
             } else if(!firsttime && selX==0 && selY==0 && !invalidMove){
-                gridSquares[selX][selY].colorBlue();
+                gridTiles[selX][selY].colorBlue();
             } else if(invalidMove){
-                gridSquares[selX][selY].colorYellow();
+                gridTiles[selX][selY].colorYellow();
             }
             // visiting new square
             if(!square.isVisited() && !firsttime){
@@ -167,21 +157,22 @@ public class Game extends JFrame implements ActionListener, MouseListener
             {
                 for ( int y = 0; y < rows; y ++)
                 {
-                    gridSquares[x][y].colorize(Color.yellow);
+                    gridTiles[x][y].colorize(Color.yellow);
+                    gridTiles[x][y].setBorder(null);
                 }
             }
-            gridSquares[1][1].colorize(Color.black);
-            gridSquares[1][3].colorize(Color.black);
-            gridSquares[3][0].colorize(Color.black);
-            gridSquares[4][1].colorize(Color.black);
-            gridSquares[4][2].colorize(Color.black);
-            gridSquares[4][3].colorize(Color.black);
-            gridSquares[3][4].colorize(Color.black);
+            gridTiles[1][1].colorize(Color.black);
+            gridTiles[1][3].colorize(Color.black);
+            gridTiles[3][0].colorize(Color.black);
+            gridTiles[4][1].colorize(Color.black);
+            gridTiles[4][2].colorize(Color.black);
+            gridTiles[4][3].colorize(Color.black);
+            gridTiles[3][4].colorize(Color.black);
             gamePanel.setBackground(Color.green);
         }
     }
 
-    // not used but must be present to fulfil MouseListener contract
+    // Dependency satisfying requisites
     public void mouseEntered(MouseEvent arg0){}
 
     public void mouseExited(MouseEvent arg0) {}
