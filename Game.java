@@ -17,7 +17,7 @@ public class Game extends JFrame implements ActionListener, MouseListener
     private JButton resetButton;
     private GridSquare [][] gridSquares;
     private int rows,columns, selX, selY, moveCount;
-    private boolean firsttime;
+    private boolean firsttime, invalidMove;
 
     /*
      *  constructor method takes as input how many rows and columns of gridsquares to create
@@ -30,6 +30,7 @@ public class Game extends JFrame implements ActionListener, MouseListener
         selX = 0;
         selY = 0;
         firsttime = true;
+        this.invalidMove = false;
         this.rows = rows;
         this.columns = columns;
         this.setSize(600,600);
@@ -62,9 +63,7 @@ public class Game extends JFrame implements ActionListener, MouseListener
                 gridSquares[x][y] = new GridSquare(x, y);
                 gridSquares[x][y].setSize(20, 20);
                 gridSquares[x][y].setColor(x + y);
-
-                gridSquares[x][y].addMouseListener(this);        // AGAIN, don't forget this line!
-
+                gridSquares[x][y].addMouseListener(this);
                 gamePanel.add(gridSquares[x][y]);
             }
         }
@@ -121,30 +120,64 @@ public class Game extends JFrame implements ActionListener, MouseListener
             // coloring previously visited squares BLUE
             if(!firsttime && (selX!=0 || selY!=0)){
                 gridSquares[selX][selY].colorBlue();
-            } else if(!firsttime && selX==0 && selY==0){
+            } else if(!firsttime && selX==0 && selY==0 && !invalidMove){
                 gridSquares[selX][selY].colorBlue();
+            } else if(invalidMove){
+                gridSquares[selX][selY].colorYellow();
             }
             // visiting new square
-            if(!square.isVisited()){
+            if(!square.isVisited() && !firsttime){
                 if(
-                (square.getXcoord() != selX - 2 &&
-                square.getYcoord() != selY - 1) ||
-                (square.getXcoord() != selX + 2 &&
-                square.getYcoord() != selY + 1)
-                ){}
+                // Validating the selection for a KNIGHT piece on a chessboard
+                ((square.getXcoord() == selX +1 && square.getYcoord() == selY -2) || (square.getXcoord() == selX +1 && square.getYcoord() == selY +2)) ||
+                ((square.getXcoord() == selX -1 && square.getYcoord() == selY -2) || (square.getXcoord() == selX -1 && square.getYcoord() == selY +2)) ||
+                ((square.getXcoord() == selX -2 && square.getYcoord() == selY -1) || (square.getXcoord() == selX +2 && square.getYcoord() == selY -1)) ||
+                ((square.getXcoord() == selX -2 && square.getYcoord() == selY +1) || (square.getXcoord() == selX +2 && square.getYcoord() == selY +1))
+                ){
+                    square.colorYellow();
+                    square.setVisited();
+                    System.out.println("Visited "+square.getXcoord()+","+square.getYcoord()+"!");
+                    moveCount += 1;
+                    selX = square.getXcoord();
+                    selY = square.getYcoord();
+                    infoLabel.setText("Moves made: "+moveCount);
+                    firsttime = false;
+                    gamePanel.setBackground(null);
+                    invalidMove = false;
+                } else {
+                    infoLabel.setText("You cannot go there!");
+                    gamePanel.setBackground(Color.red);
+                    invalidMove = true;
+                }
+
+            } else if(firsttime) {
                 square.colorYellow();
                 square.setVisited();
                 System.out.println("Visited "+square.getXcoord()+","+square.getYcoord()+"!");
                 moveCount += 1;
+                selX = square.getXcoord();
+                selY = square.getYcoord();
+                infoLabel.setText("Moves made: "+moveCount);
+                firsttime = false;
             }
-
-            selX = square.getXcoord();
-            selY = square.getYcoord();
-            infoLabel.setText("Moves made: "+moveCount);
-            firsttime = false;
         }
         if(moveCount>=25){
             infoLabel.setText("You did it!");
+            for ( int x = 0; x < columns; x ++)
+            {
+                for ( int y = 0; y < rows; y ++)
+                {
+                    gridSquares[x][y].colorize(Color.yellow);
+                }
+            }
+            gridSquares[1][1].colorize(Color.black);
+            gridSquares[1][3].colorize(Color.black);
+            gridSquares[3][0].colorize(Color.black);
+            gridSquares[4][1].colorize(Color.black);
+            gridSquares[4][2].colorize(Color.black);
+            gridSquares[4][3].colorize(Color.black);
+            gridSquares[3][4].colorize(Color.black);
+            gamePanel.setBackground(Color.green);
         }
     }
 

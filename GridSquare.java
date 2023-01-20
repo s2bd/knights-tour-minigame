@@ -17,7 +17,7 @@ public class GridSquare extends JPanel
 {
     private int xcoord, ycoord;  // location in the grid
     private boolean visited;
-    
+
     // constructor takes the x and y coordinates of this square
     public GridSquare(int xcoord, int ycoord)
     {
@@ -27,30 +27,41 @@ public class GridSquare extends JPanel
         this.ycoord = ycoord;
         this.visited = false;
     }
-    
+
     // if the decider is even, it chooses black, otherwise white (for 'column+row' will allow a chequerboard effect)
     public void setColor( int decider)
     {
         Color colour = (int) (decider/2.0) == (decider/2.0) ? Color.black : Color.white;
         this.setBackground( colour);
     }
-    
+
     // if the square is black it becomes white, and vice-versa
     public void colorYellow()
     {
         this.setBackground(Color.yellow);
     }
-    
+
     public void colorBlue()
     {
         this.setBackground(Color.blue);
     }
     
+    public void colorize(Color paint){
+        this.setBackground(paint);
+    }
+
     // simple setters and getters
     public void setXcoord(int value)    { xcoord = value; }
+
     public void setYcoord(int value)    { ycoord = value; }
+
     public int getXcoord()              { return xcoord; }
+
     public int getYcoord()              { return ycoord; }
+
+    public Color getColor()             { return this.getBackground();}
+
     public boolean isVisited()          { return visited; }
+
     public void setVisited()            { this.visited = true; }
 }
